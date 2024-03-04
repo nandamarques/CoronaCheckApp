@@ -8,7 +8,7 @@ import androidx.annotation.NonNull;
 public class Prontuario implements Parcelable {
 
     private Paciente paciente;
-    private Integer idProntuario;
+    private Long id;
     private double temperatura;
     private int diasTosse;
     private int diasDorCabeca;
@@ -19,8 +19,8 @@ public class Prontuario implements Parcelable {
     public Prontuario() {
     }
 
-    public Prontuario(Integer idProntuario, Integer idPaciente, String nomePaciente, int idadePaciente, double temperatura, int diasTosse, int diasDorCabeca, int semanasVisitaPaises, boolean semSintomas, boolean naoVisitouPaises) {
-        this.idProntuario = idProntuario;
+    public Prontuario(Long idProntuario, Integer idPaciente, String nomePaciente, int idadePaciente, double temperatura, int diasTosse, int diasDorCabeca, int semanasVisitaPaises, boolean semSintomas, boolean naoVisitouPaises) {
+        this.id = idProntuario;
         this.temperatura = temperatura;
         this.diasTosse = diasTosse;
         this.diasDorCabeca = diasDorCabeca;
@@ -49,8 +49,8 @@ public class Prontuario implements Parcelable {
         this.paciente = paciente;
     }
 
-    public Integer getIdProntuario() {
-        return idProntuario;
+    public Long getId() {
+        return id;
     }
 
 
@@ -86,6 +86,8 @@ public class Prontuario implements Parcelable {
         this.semanasVisitaPaises = semanasVisitaPaises;
     }
 
+
+
     public boolean isSemSintomas() {
         return semSintomas;
     }
@@ -107,10 +109,10 @@ public class Prontuario implements Parcelable {
     }
 
     protected Prontuario(Parcel in) {
-        // Correção: Ler o idProntuario uma única vez
-        idProntuario = in.readInt();
-        if (idProntuario == -1) {
-            idProntuario = null;
+        if (in.readByte() == 0) {
+            id = null;
+        } else {
+            id = in.readLong();
         }
         temperatura = in.readDouble();
         diasTosse = in.readInt();
@@ -118,20 +120,23 @@ public class Prontuario implements Parcelable {
         semanasVisitaPaises = in.readInt();
         semSintomas = in.readByte() != 0;
         naoVisitouPaises = in.readByte() != 0;
-        // Adiciona leitura do Paciente
         paciente = in.readParcelable(Paciente.class.getClassLoader());
     }
 
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int i) {
-        parcel.writeInt(idProntuario == null ? -1 : idProntuario);
+        if (id == null) {
+            parcel.writeByte((byte) 0);
+        } else {
+            parcel.writeByte((byte) 1);
+            parcel.writeLong(id);
+        }
         parcel.writeDouble(temperatura);
         parcel.writeInt(diasTosse);
         parcel.writeInt(diasDorCabeca);
         parcel.writeInt(semanasVisitaPaises);
         parcel.writeByte((byte) (semSintomas ? 1 : 0));
         parcel.writeByte((byte) (naoVisitouPaises ? 1 : 0));
-        // Adiciona escrita do Paciente
         parcel.writeParcelable(paciente, i);
     }
 

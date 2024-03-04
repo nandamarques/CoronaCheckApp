@@ -17,7 +17,15 @@
     <string name="descricao_temperatura">Temperatura</string>
     <string name="descricao_idade">Idade</string>
     <string name="descricao_nome">Nome</string>
-    <string name="descricao_semana_viagem">Semana(s) desde que visitou algum dos países assinalados</string>
+    <string name="descricao_semana_viagem">semana(s) desde que visitou algum dos países assinalados</string>
     <string name="n_o_apresenta_nenhum_dos_sintomas">Não apresenta nenhum dos sintomas</string>
     <string name="visitou_alguns_dos_pa_ses_listados">Visitou alguns dos países listados?</string>
+    <string name="deve_ser_internado">Deve ser Internado</string>
+    <string name="deve_ir_quarentena">Deve ir para Quarentena</string>
+    <string name="deve_ser_liberado">Deve ser Liberado</string>
+    <string-array name="categorias_diagnostico">
+        <item>@string/deve_ser_internado</item>
+        <item>@string/deve_ir_quarentena</item>
+        <item>@string/deve_ser_liberado</item>
+    </string-array>
 </resources>

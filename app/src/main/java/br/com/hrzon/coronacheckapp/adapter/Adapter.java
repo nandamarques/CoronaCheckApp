@@ -45,33 +45,54 @@ public class Adapter extends RecyclerView.Adapter<MyViewHolder> {
         holder.nome.setText(paciente.getNome());
         holder.idade.setText(String.format(Locale.getDefault(), "%d anos", paciente.getIdade()));
         holder.temperatura.setText(String.format(Locale.getDefault(), "%.1f°C", prontuario.getTemperatura()));
-        holder.diasTosse.setText(String.format(Locale.getDefault(), "%d dias", prontuario.getDiasTosse()));
-        holder.diasDorDeCabeca.setText(String.format(Locale.getDefault(), "%d dias", prontuario.getDiasDorCabeca()));
-        holder.semanasVisitaPaises.setText(prontuario.getSemanasVisitaPaises() + "%d semanas");
         holder.infoPaises.setVisibility(View.GONE);
         holder.infoSintomas.setVisibility(View.GONE);
 
-        if(prontuario.isNaoVisitouPaises()){
+
+
+        if (!prontuario.isSemSintomas() && prontuario.isNaoVisitouPaises()) {
+            holder.diasTosse.setText(String.format(Locale.getDefault(), "%d dias de tosse", prontuario.getDiasTosse()));
+            holder.diasDorDeCabeca.setText(String.format(Locale.getDefault(), "%d dias com dor cabeça", prontuario.getDiasDorCabeca()));
+            holder.semanasVisitaPaises.setVisibility(View.GONE);
             holder.infoPaises.setVisibility(View.VISIBLE);
-            holder.infoPaises.setText(R.string.descricao_semana_viagem);
+            holder.infoPaises.setText(context.getString(R.string.sem_viagem));
+        } else if (!prontuario.isSemSintomas() && !prontuario.isNaoVisitouPaises()) {
+            holder.diasTosse.setText(String.format(Locale.getDefault(), "%d dias de tosse", prontuario.getDiasTosse()));
+            holder.diasDorDeCabeca.setText(String.format(Locale.getDefault(), "%d dias com dor de cabeça", prontuario.getDiasDorCabeca()));
+            holder.semanasVisitaPaises.setText(prontuario.getSemanasVisitaPaises() + " " + context.getString(R.string.descricao_semana_viagem));
+        } else if (prontuario.isSemSintomas() && prontuario.isNaoVisitouPaises()) {
+            holder.diasTosse.setVisibility(View.GONE);
+            holder.diasDorDeCabeca.setVisibility(View.GONE);
+            holder.semanasVisitaPaises.setVisibility(View.GONE);
+            holder.infoPaises.setVisibility(View.VISIBLE);
+            holder.infoSintomas.setVisibility(View.VISIBLE);
+            holder.infoSintomas.setText(context.getString(R.string.sem_sintomas));
+            holder.infoPaises.setText(context.getString(R.string.sem_viagem));
+        } else if (prontuario.isSemSintomas() && !prontuario.isNaoVisitouPaises()){
+            holder.diasTosse.setVisibility(View.GONE);
+            holder.diasDorDeCabeca.setVisibility(View.GONE);
+            holder.infoSintomas.setVisibility(View.VISIBLE);
+            holder.infoSintomas.setText(context.getString(R.string.sem_sintomas));
+            holder.semanasVisitaPaises.setText(prontuario.getSemanasVisitaPaises() + " " + context.getString(R.string.descricao_semana_viagem));
+        } else {
+            holder.diasTosse.setText(String.format(Locale.getDefault(), "%d dias de tosse", prontuario.getDiasTosse()));
+            holder.diasDorDeCabeca.setText(String.format(Locale.getDefault(), "%d dias com dor de cabeça", prontuario.getDiasDorCabeca()));
+            holder.semanasVisitaPaises.setText(prontuario.getSemanasVisitaPaises() + " " + context.getString(R.string.descricao_semana_viagem));
         }
 
-        if(prontuario.isSemSintomas()){
-            holder.infoSintomas.setVisibility(View.VISIBLE);
-            holder.infoSintomas.setText(R.string.descricao_dias_tosse + " " + R.string.descricao_dias_dor_cabeca);
-        }
 
         Log.d("Adapter", "Fazendo um Bind em uma View");
 
-        int pos = position;
-        holder.itemView.setOnClickListener(view -> {
-            Intent intent = new Intent(context, ProntuarioActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("PRONTUARIO", prontuario);
-            intent.putExtra("POSITION", pos);
-            context.startActivity(intent);
-
-        });
+        /*TODO: MANTER ITENS CLICÁVEIS PARA FUTURAS MODIFICAÇÕES NOS DADOS*/
+//        int pos = position;
+//        holder.itemView.setOnClickListener(view -> {
+//            Intent intent = new Intent(context, ProntuarioActivity.class);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            intent.putExtra("PRONTUARIO", prontuario);
+//            intent.putExtra("POSITION", pos);
+//            context.startActivity(intent);
+//
+//        });
     }
 
     @Override

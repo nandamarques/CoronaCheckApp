@@ -42,14 +42,23 @@ public class Paciente implements Parcelable {
     }
 
     @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeLong(id);
-        dest.writeString(nome);
-        dest.writeInt(idade);
+    public void writeToParcel(Parcel parcel, int flags) {
+        if (id == null) {
+            parcel.writeByte((byte) 0);
+        } else {
+            parcel.writeByte((byte) 1);
+            parcel.writeLong(id);
+        }
+        parcel.writeString(nome);
+        parcel.writeInt(idade);
     }
 
     public Paciente(Parcel in) {
-        id = in.readLong();
+        if (in.readByte() == 0) {
+            id = null;
+        } else {
+            id = in.readLong();
+        }
         nome = in.readString();
         idade = in.readInt();
     }

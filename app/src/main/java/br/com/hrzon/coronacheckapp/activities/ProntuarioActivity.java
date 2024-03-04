@@ -2,7 +2,10 @@ package br.com.hrzon.coronacheckapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -14,6 +17,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import br.com.hrzon.coronacheckapp.business.Diagnostico;
 import br.com.hrzon.coronacheckapp.dao.DataBase;
 import br.com.hrzon.coronacheckapp.model.Paciente;
 import br.com.hrzon.coronacheckapp.model.Prontuario;
@@ -54,22 +58,19 @@ public class ProntuarioActivity extends AppCompatActivity {
         salvar = findViewById(R.id.button_salvar);
 
         iconeInfo.setOnClickListener(new View.OnClickListener(){
-
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, R.string.lista_paises_info, Snackbar.LENGTH_LONG).show();}
         });
 
-        radioGroupVisitaPaises.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if(checkedId == R.id.radio_button_sim_paises) {
-                    semanasVisitaPaises.setVisibility(View.VISIBLE);
-                } else if(checkedId == R.id.radio_button_nao_paises) {
-                    semanasVisitaPaises.setVisibility(View.GONE);
-                }
+        radioGroupVisitaPaises.setOnCheckedChangeListener((group, checkedId) -> {
+            if (checkedId == R.id.radio_button_sim_paises) {
+                semanasVisitaPaises.setVisibility(View.VISIBLE);
+            } else if (checkedId == R.id.radio_button_nao_paises) {
+                semanasVisitaPaises.setVisibility(View.GONE);
             }
         });
+
 
         checkSemSintomas.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
@@ -78,9 +79,35 @@ public class ProntuarioActivity extends AppCompatActivity {
             }
         });
 
+        diasTosse.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().isEmpty() && Integer.parseInt(s.toString()) > 0) {
+                    checkSemSintomas.setChecked(false);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+        diasDorDeCabeca.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().isEmpty() && Integer.parseInt(s.toString()) > 0) {
+                    checkSemSintomas.setChecked(false);
+                }
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+
         salvar.setOnClickListener(v -> {
             try {
-
                 Paciente paciente = new Paciente();
                 paciente.setNome(nomePaciente.getText().toString());
                 paciente.setIdade(Integer.parseInt(idadePaciente.getText().toString()));
@@ -89,32 +116,50 @@ public class ProntuarioActivity extends AppCompatActivity {
                 Prontuario prontuario = new Prontuario();
                 prontuario.setPaciente(paciente);
                 prontuario.setTemperatura(Double.parseDouble(temperaturaCorporal.getText().toString()));
-                prontuario.setDiasTosse(Integer.parseInt(diasTosse.getText().toString()));
-                prontuario.setDiasDorCabeca(Integer.parseInt(diasDorDeCabeca.getText().toString()));
+                prontuario.setSemSintomas(checkSemSintomas.isChecked());
 
-                // Aqui verificamos qual RadioButton está selecionado no grupo e agimos de acordo
+                int valorDiasTosse = !checkSemSintomas.isChecked() && !diasTosse.getText().toString().isEmpty() ? Integer.parseInt(diasTosse.getText().toString().trim()) : 0;
+                int valorDiasDorDeCabeca = !checkSemSintomas.isChecked() && !diasDorDeCabeca.getText().toString().isEmpty() ? Integer.parseInt(diasDorDeCabeca.getText().toString().trim()) : 0;
+
+                prontuario.setDiasTosse(valorDiasTosse);
+                prontuario.setDiasDorCabeca(valorDiasDorDeCabeca);
+
                 int selectedId = radioGroupVisitaPaises.getCheckedRadioButtonId();
-                if(selectedId == R.id.radio_button_sim_paises) {
-                    prontuario.setSemanasVisitaPaises(Integer.parseInt(semanasVisitaPaises.getEditText().getText().toString()));
+                if (selectedId == R.id.radio_button_sim_paises) {
+                    prontuario.setSemanasVisitaPaises(Integer.parseInt(semanasVisitaPaises.getEditText().getText().toString().trim()));
                     prontuario.setNaoVisitouPaises(false);
-                } else if(selectedId == R.id.radio_button_nao_paises) {
-                    prontuario.setSemanasVisitaPaises(0); // Ou outro valor que indique "não aplicável"
+                } else {
+                    prontuario.setSemanasVisitaPaises(0);
                     prontuario.setNaoVisitouPaises(true);
                 }
-
-                prontuario.setSemSintomas(checkSemSintomas.isChecked());
 
                 long resultado = db.cadastrarProntuario(prontuario);
                 if (resultado == -1) {
                     Snackbar.make(v, "Erro ao salvar prontuário.", Snackbar.LENGTH_LONG).show();
                 } else {
-                    Snackbar.make(v, "Prontuário salvo com sucesso.", Snackbar.LENGTH_LONG).show();
-                    finish();
+                    String mensagemDiagnostico;
+                    if (Diagnostico.deveSerInternado(prontuario)) {
+                        mensagemDiagnostico = getString(R.string.deve_ser_internado);
+                    } else if (Diagnostico.deveIrQuarentena(prontuario)) {
+                        mensagemDiagnostico = getString(R.string.deve_ir_quarentena);
+                    } else {
+                        mensagemDiagnostico = getString(R.string.deve_ser_liberado);
+                    }
+
+                    new AlertDialog.Builder(ProntuarioActivity.this)
+                            .setTitle("Diagnóstico")
+                            .setMessage(mensagemDiagnostico)
+                            .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> finish())
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
                 }
             } catch (NumberFormatException e) {
                 Snackbar.make(v, "Por favor, verifique os dados inseridos.", Snackbar.LENGTH_LONG).show();
             }
         });
+
+
+
 
 
 
