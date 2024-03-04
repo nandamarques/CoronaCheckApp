@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">Hands On App</string>
+    <string name="nome_completo">Nome Completo</string>
+    <string name="cadastro_de_paciente">Cadastro de Paciente</string>
+    <string name="idade">Idade</string>
+    <string name="temperatura_corporal_c">Temperatura Corporal (C°)</string>
+    <string name="dia_s">Período (em dias)</string>
+    <string name="per_odo_em_dias">Período (em dias)</string>
+    <string name="descri_o">Descrição</string>
+    <string name="indique_h_quantas_semanas">Indique há quantas semanas</string>
+    <string name="selecione_uma_categoria">Selecione uma categoria</string>
+    <string name="lista_paises_info">Itália, China, Indonésia, Portugal ou EUA</string>
+    <string name="sem_viagem">Não visitou nenhum dos países assinalados.</string>
+    <string name="sem_sintomas">Não apresenta nenhum dos sintomas.</string>
+    <string name="descricao_dias_dor_cabeca">Dias com Dor de Cabeça</string>
+    <string name="descricao_dias_tosse">Dias de Tosse</string>
+    <string name="descricao_temperatura">Temperatura</string>
+    <string name="descricao_idade">Idade</string>
+    <string name="descricao_nome">Nome</string>
+    <string name="descricao_semana_viagem">Semana(s) desde que visitou algum dos países assinalados</string>
+    <string name="n_o_apresenta_nenhum_dos_sintomas">Não apresenta nenhum dos sintomas</string>
+    <string name="visitou_alguns_dos_pa_ses_listados">Visitou alguns dos países listados?</string>
+</resources>
